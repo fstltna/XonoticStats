@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $host = "";
+my $version = "";
+my $map = "";
+my $timing = "";
+my $players ="";
+my $WebPage = "/var/www/html/GameStats/index.php";
+
+open(my $fh, '-|', 'xrcon status') or die $!;
+while (my $line = <$fh>)
+{
+    # Do stuff with each $line.
+	chop($line);
+	if ($line eq "")
+	{
+		last;
+	}
+#	print $line;
+	my ($type, $values) = split(/:/, $line);
+	$values =~ s/^\s+|\s+$//g;
+	if ($type eq "host")
+	{
+		$host = $values;
+	}
+	elsif ($type eq "version")
+	{
+		$version = $values;
+	}
+	elsif ($type eq "map")
+	{
+		$map = $values;
+	}
+	elsif ($type eq "timing")
+	{
+		$timing = $values;
+	}
+	elsif ($type eq "players")
+	{
+		$players = $values;
+	}
+}
+close ($fh);
+
+my $datestring = localtime();
+
+open($fh, '>', $WebPage) or die "Could not create file '$WebPage' $!";
+my $message = <<"END_MESSAGE";
+<html>
+<head>
+<title>BattleGrrls Server Stats</title>
+<meta http-equiv=\"refresh\" content=\"60\">
+</head>
+<body>
+<h1>BattleGrrls Server Stats</h1>
+<p><font color=\"blue\"><b>Updated</font>:</b> <font color=\"green\"><i>$datestring</i></font></p>
+<p><font color=\"blue\"><b>Stats for $host, running $version</b></font></p>
+<p><font color=\"blue\"><b>Timing Stats</font>:</b> <font color=\"orange\">$timing</font></p>
+<p><font color=\"blue\"><b>Current map</font>:</b> <font color=\"green\">$map</font></p>
+<p><font color=\"blue\"><b>Players</font>:</b> $players</p>
+<hr>
+<b><font color=\"green\" face=\"Courier\">
+END_MESSAGE
+#print $message;
+print $fh "$message";
+open(my $usersfh, '-|', 'xrcon users') or die $!;
+while (my $line = <$usersfh>)
+{
+	chop($line);
+	print $fh "$line<br>\n";
+}
+close ($usersfh);
+
+print $fh "</font></b></body></html>";
+close $fh;
+exit 0;
