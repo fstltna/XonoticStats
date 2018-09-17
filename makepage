@@ -9,7 +9,7 @@ my $timing = "";
 my $players ="";
 my $WebPage = "/var/www/html/GameStats/index.php";
 
-open(my $fh, '-|', 'xrcon status') or die $!;
+open(my $fh, '-|', '/usr/local/bin/xrcon status') or die $!;
 while (my $line = <$fh>)
 {
     # Do stuff with each $line.
@@ -65,7 +65,7 @@ my $message = <<"END_MESSAGE";
 END_MESSAGE
 #print $message;
 print $fh "$message";
-open(my $usersfh, '-|', 'xrcon users') or die $!;
+open(my $usersfh, '-|', '/usr/local/bin/xrcon users') or die $!;
 while (my $line = <$usersfh>)
 {
 	chop($line);
